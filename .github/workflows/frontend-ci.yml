@@ -1,0 +1,42 @@
+name: Frontend CI (Streamlit)
+
+on:
+  push:
+    paths:
+      - "frontend/**"
+  pull_request:
+    paths:
+      - "frontend/**"
+
+jobs:
+  streamlit-ci:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        pip install -r requirements.txt
+
+    - name: Streamlit health check
+      run: |
+        cd frontend
+        streamlit --version
+
+    - name: Create build artifact (zip)
+      run: |
+        powershell Compress-Archive -Path frontend -DestinationPath frontend-build.zip
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: frontend-build
+        path: frontend-build.zip
