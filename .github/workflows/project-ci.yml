@@ -16,86 +16,102 @@ jobs:
     runs-on: windows-latest
 
     steps:
-
+    # -------------------------------------------------
+    # 1. Checkout repository
+    # -------------------------------------------------
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # -------------------------------------------------
+    # 2. Setup Python
+    # -------------------------------------------------
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
 
-    # -----------------------------
+    # -------------------------------------------------
     # 3. Install Backend Dependencies
-    # -----------------------------
+    # -------------------------------------------------
     - name: Install backend dependencies
       run: |
-        cd SE_project/SE_project/SE_project/SE_PROJECT_1/backend
+        cd backend
         if (Test-Path requirements.txt) {
             pip install -r requirements.txt
         } else {
             Write-Output "No backend requirements.txt found."
         }
 
-    # -----------------------------
-    # 4. Frontend Dependencies
-    # -----------------------------
+    # -------------------------------------------------
+    # 4. Install Frontend Dependencies
+    # -------------------------------------------------
     - name: Install frontend dependencies
       run: |
         pip install streamlit
 
-    # -----------------------------
-    # 5. Lint Entire Project
-    # -----------------------------
+    # -------------------------------------------------
+    # 5. Install ML Model Dependencies (if any)
+    # -------------------------------------------------
+    - name: Install ML dependencies
+      run: |
+        if (Test-Path "ml/requirements.txt") {
+            pip install -r ml/requirements.txt
+        } else {
+            Write-Output "No ML requirements.txt found."
+        }
+
+    # -------------------------------------------------
+    # 6. Lint Entire Project
+    # -------------------------------------------------
     - name: Run flake8 linting
       run: |
         pip install flake8
-        flake8 SE_project --exclude __pycache__ || true
+        flake8 . --exclude __pycache__ || true
 
-    # -----------------------------
-    # 6. Run Tests
-    # -----------------------------
+    # -------------------------------------------------
+    # 7. Run Tests
+    # -------------------------------------------------
     - name: Run pytest tests
       run: |
         pip install pytest pytest-cov
         pytest || true
 
-    # -----------------------------
-    # 7. ML Model Check
-    # -----------------------------
+    # -------------------------------------------------
+    # 8. ML Model Check
+    # -------------------------------------------------
     - name: Check ML model
       run: |
-        if (!(Test-Path "SE_project/SE_project/SE_project/SE_PROJECT_1/backend/model.pkl")) {
+        if (!(Test-Path "backend/model.pkl")) {
             Write-Error "model.pkl NOT FOUND"
         } else {
             Write-Output "model.pkl found."
         }
 
-    # -----------------------------
-    # 8. Backend Health Check
-    # -----------------------------
+    # -------------------------------------------------
+    # 9. Backend Health Check
+    # -------------------------------------------------
     - name: Backend health check
       run: |
-        cd SE_project/SE_project/SE_project/SE_PROJECT_1/backend
+        cd backend
         python app.py --help || true
 
-    # -----------------------------
-    # 9. Streamlit Health Check
-    # -----------------------------
+    # -------------------------------------------------
+    # 10. Streamlit Health Check
+    # -------------------------------------------------
     - name: Streamlit check
       run: |
         streamlit --version
 
-    # -----------------------------
-    # 10. Create build artifact
-    # -----------------------------
+    # -------------------------------------------------
+    # 11. Create build artifact
+    # -------------------------------------------------
     - name: Create build artifact
       run: |
-        powershell Compress-Archive -Path SE_project -DestinationPath project-build.zip
+        powershell Compress-Archive -Path . -DestinationPath project-build.zip
 
-    # -----------------------------
-    # 11. Upload build artifact
-    # -----------------------------
+    # -------------------------------------------------
+    # 12. Upload build artifact
+    # -------------------------------------------------
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
