@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 120
+ignore = E302, W292, W391, F401
+exclude = __pycache__, build, dist
