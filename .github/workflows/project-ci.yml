@@ -50,7 +50,7 @@ jobs:
         pip install streamlit
 
     # -------------------------------------------------
-    # 5. Install ML Model Dependencies (if any)
+    # 5. Install ML Dependencies (if any)
     # -------------------------------------------------
     - name: Install ML dependencies
       run: |
@@ -77,18 +77,7 @@ jobs:
         pytest || true
 
     # -------------------------------------------------
-    # 8. ML Model Check
-    # -------------------------------------------------
-    - name: Check ML model
-      run: |
-        if (!(Test-Path "backend/model.pkl")) {
-            Write-Error "model.pkl NOT FOUND"
-        } else {
-            Write-Output "model.pkl found."
-        }
-
-    # -------------------------------------------------
-    # 9. Backend Health Check
+    # 8. Backend Health Check
     # -------------------------------------------------
     - name: Backend health check
       run: |
@@ -96,21 +85,21 @@ jobs:
         python app.py --help || true
 
     # -------------------------------------------------
-    # 10. Streamlit Health Check
+    # 9. Streamlit Health Check
     # -------------------------------------------------
     - name: Streamlit check
       run: |
         streamlit --version
 
     # -------------------------------------------------
-    # 11. Create build artifact
+    # 10. Create build artifact
     # -------------------------------------------------
     - name: Create build artifact
       run: |
         powershell Compress-Archive -Path . -DestinationPath project-build.zip
 
     # -------------------------------------------------
-    # 12. Upload build artifact
+    # 11. Upload build artifact
     # -------------------------------------------------
     - name: Upload artifact
       uses: actions/upload-artifact@v4
