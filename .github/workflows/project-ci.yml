@@ -3,12 +3,12 @@ name: Project CI (Backend + Frontend + ML)
 on:
   push:
     paths:
-      - "SE_PROJECT_1/**"
+      - "SE_project/**"
       - ".github/workflows/project-ci.yml"
 
   pull_request:
     paths:
-      - "SE_PROJECT_1/**"
+      - "SE_project/**"
       - ".github/workflows/project-ci.yml"
 
 jobs:
@@ -17,89 +17,92 @@ jobs:
 
     steps:
 
-    # -----------------------------------
+    # -----------------------------
     # 1. CHECKOUT CODE
-    # -----------------------------------
+    # -----------------------------
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # -----------------------------------
+    # -----------------------------
     # 2. SETUP PYTHON
-    # -----------------------------------
+    # -----------------------------
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
 
-    # -----------------------------------
+    # -----------------------------
     # 3. INSTALL BACKEND DEPENDENCIES
-    # -----------------------------------
+    # -----------------------------
     - name: Install backend dependencies
       run: |
-        cd SE_PROJECT_1/backend
+        cd SE_project/SE_PROJECT_1/backend
         if (Test-Path requirements.txt) {
             pip install -r requirements.txt
+            Write-Output "Backend requirements installed."
+        } else {
+            Write-Output "No backend requirements.txt found."
         }
 
-    # -----------------------------------
+    # -----------------------------
     # 4. INSTALL FRONTEND DEPENDENCIES
-    # -----------------------------------
+    # -----------------------------
     - name: Install frontend dependencies
       run: |
         pip install streamlit
 
-    # -----------------------------------
+    # -----------------------------
     # 5. LINT ENTIRE PROJECT
-    # -----------------------------------
+    # -----------------------------
     - name: Run flake8 linting
       run: |
         pip install flake8
-        flake8 SE_PROJECT_1 --exclude __pycache__ || true
+        flake8 SE_project --exclude __pycache__ || true
 
-    # -----------------------------------
-    # 6. RUN TESTS (BACKEND + FRONTEND)
-    # -----------------------------------
+    # -----------------------------
+    # 6. RUN TESTS
+    # -----------------------------
     - name: Run pytest tests
       run: |
         pip install pytest pytest-cov
-        pytest || true  # avoids breaking if no test files exist
+        pytest || true
 
-    # -----------------------------------
+    # -----------------------------
     # 7. VERIFY ML MODEL FILE
-    # -----------------------------------
+    # -----------------------------
     - name: Check ML model presence
       run: |
-        if (!(Test-Path "SE_PROJECT_1/backend/model.pkl")) {
+        if (!(Test-Path "SE_project/SE_PROJECT_1/backend/model.pkl")) {
             Write-Error "model.pkl NOT FOUND!"
         } else {
             Write-Output "model.pkl found."
         }
 
-    # -----------------------------------
+    # -----------------------------
     # 8. BACKEND HEALTH CHECK
-    # -----------------------------------
-    - name: Backend basic check
+    # -----------------------------
+    - name: Backend health check
       run: |
-        cd SE_PROJECT_1/backend
+        cd SE_project/SE_PROJECT_1/backend
         python app.py --help || true
 
-    # -----------------------------------
-    # 9. FRONTEND HEALTH CHECK (STREAMLIT)
-    # -----------------------------------
+    # -----------------------------
+    # 9. STREAMLIT HEALTH CHECK
+    # -----------------------------
     - name: Streamlit health check
       run: |
         streamlit --version
 
-    # -----------------------------------
-    # 10. CREATE FULL PROJECT ZIP ARTIFACT
-    # -----------------------------------
+    # -----------------------------
+    # 10. ZIP PROJECT ARTIFACT
+    # -----------------------------
     - name: Create build artifact
       run: |
-        powershell Compress-Archive -Path SE_PROJECT_1 -DestinationPath project-build.zip
+        powershell Compress-Archive -Path SE_project -DestinationPath project-build.zip
 
-    # -----------------------------------
+    # -----------------------------
     # 11. UPLOAD ARTIFACT
-    # -----------------------------------
+    # -----------------------------
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
