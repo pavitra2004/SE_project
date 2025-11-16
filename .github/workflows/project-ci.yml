@@ -66,15 +66,15 @@ jobs:
     - name: Run flake8 linting
       run: |
         pip install flake8
-        flake8 . --exclude __pycache__ || true
+        flake8 . --exclude __pycache__
 
     # -------------------------------------------------
     # 7. Run Tests
     # -------------------------------------------------
     - name: Run pytest tests
       run: |
-        pip install pytest pytest-cov
-        pytest || true
+        pip install pytest pytest-cov flake8
+        pytest tests/ -v --cov=backend --cov-report=term-missing
 
     # -------------------------------------------------
     # 8. Backend Health Check
@@ -82,7 +82,7 @@ jobs:
     - name: Backend health check
       run: |
         cd backend
-        python app.py --help || true
+        python app.py --help
 
     # -------------------------------------------------
     # 9. Streamlit Health Check
