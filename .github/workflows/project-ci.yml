@@ -4,12 +4,12 @@ on:
   push:
     paths:
       - "SE_PROJECT_1/**"
-      - ".github/workflows/frontend-ci.yml"
+      - ".github/workflows/project-ci.yml"
 
   pull_request:
     paths:
       - "SE_PROJECT_1/**"
-      - ".github/workflows/frontend-ci.yml"
+      - ".github/workflows/project-ci.yml"
 
 jobs:
   ci:
