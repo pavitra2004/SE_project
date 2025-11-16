@@ -2,14 +2,14 @@ name: Project CI (Backend + Frontend + ML)
 
 on:
   push:
+    # Run on any file change
     paths:
-      - "SE_project/**"
-      - ".github/workflows/project-ci.yml"
-
+      - "**"
   pull_request:
+    # Run on any file change in a PR
     paths:
-      - "SE_project/**"
-      - ".github/workflows/project-ci.yml"
+      - "**"
+
 
 jobs:
   ci:
