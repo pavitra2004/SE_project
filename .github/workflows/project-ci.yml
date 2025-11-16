@@ -17,42 +17,35 @@ jobs:
 
     steps:
 
-    # -----------------------------
-    # 1. CHECKOUT CODE
-    # -----------------------------
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # -----------------------------
-    # 2. SETUP PYTHON
-    # -----------------------------
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
 
     # -----------------------------
-    # 3. INSTALL BACKEND DEPENDENCIES
+    # 3. Install Backend Dependencies
     # -----------------------------
     - name: Install backend dependencies
       run: |
-        cd SE_project/SE_PROJECT_1/backend
+        cd SE_project/SE_project/SE_project/SE_PROJECT_1/backend
         if (Test-Path requirements.txt) {
             pip install -r requirements.txt
-            Write-Output "Backend requirements installed."
         } else {
             Write-Output "No backend requirements.txt found."
         }
 
     # -----------------------------
-    # 4. INSTALL FRONTEND DEPENDENCIES
+    # 4. Frontend Dependencies
     # -----------------------------
     - name: Install frontend dependencies
       run: |
         pip install streamlit
 
     # -----------------------------
-    # 5. LINT ENTIRE PROJECT
+    # 5. Lint Entire Project
     # -----------------------------
     - name: Run flake8 linting
       run: |
@@ -60,7 +53,7 @@ jobs:
         flake8 SE_project --exclude __pycache__ || true
 
     # -----------------------------
-    # 6. RUN TESTS
+    # 6. Run Tests
     # -----------------------------
     - name: Run pytest tests
       run: |
@@ -68,42 +61,42 @@ jobs:
         pytest || true
 
     # -----------------------------
-    # 7. VERIFY ML MODEL FILE
+    # 7. ML Model Check
     # -----------------------------
-    - name: Check ML model presence
+    - name: Check ML model
       run: |
-        if (!(Test-Path "SE_project/SE_PROJECT_1/backend/model.pkl")) {
-            Write-Error "model.pkl NOT FOUND!"
+        if (!(Test-Path "SE_project/SE_project/SE_project/SE_PROJECT_1/backend/model.pkl")) {
+            Write-Error "model.pkl NOT FOUND"
         } else {
             Write-Output "model.pkl found."
         }
 
     # -----------------------------
-    # 8. BACKEND HEALTH CHECK
+    # 8. Backend Health Check
     # -----------------------------
     - name: Backend health check
       run: |
-        cd SE_project/SE_PROJECT_1/backend
+        cd SE_project/SE_project/SE_project/SE_PROJECT_1/backend
         python app.py --help || true
 
     # -----------------------------
-    # 9. STREAMLIT HEALTH CHECK
+    # 9. Streamlit Health Check
     # -----------------------------
-    - name: Streamlit health check
+    - name: Streamlit check
       run: |
         streamlit --version
 
     # -----------------------------
-    # 10. ZIP PROJECT ARTIFACT
+    # 10. Create build artifact
     # -----------------------------
     - name: Create build artifact
       run: |
         powershell Compress-Archive -Path SE_project -DestinationPath project-build.zip
 
     # -----------------------------
-    # 11. UPLOAD ARTIFACT
+    # 11. Upload build artifact
     # -----------------------------
-    - name: Upload build artifact
+    - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: full-project-build
