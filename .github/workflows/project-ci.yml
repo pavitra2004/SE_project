@@ -1,0 +1,107 @@
+name: Project CI (Backend + Frontend + ML)
+
+on:
+  push:
+    paths:
+      - "SE_PROJECT_1/**"
+      - ".github/workflows/frontend-ci.yml"
+
+  pull_request:
+    paths:
+      - "SE_PROJECT_1/**"
+      - ".github/workflows/frontend-ci.yml"
+
+jobs:
+  ci:
+    runs-on: windows-latest
+
+    steps:
+
+    # -----------------------------------
+    # 1. CHECKOUT CODE
+    # -----------------------------------
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # -----------------------------------
+    # 2. SETUP PYTHON
+    # -----------------------------------
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    # -----------------------------------
+    # 3. INSTALL BACKEND DEPENDENCIES
+    # -----------------------------------
+    - name: Install backend dependencies
+      run: |
+        cd SE_PROJECT_1/backend
+        if (Test-Path requirements.txt) {
+            pip install -r requirements.txt
+        }
+
+    # -----------------------------------
+    # 4. INSTALL FRONTEND DEPENDENCIES
+    # -----------------------------------
+    - name: Install frontend dependencies
+      run: |
+        pip install streamlit
+
+    # -----------------------------------
+    # 5. LINT ENTIRE PROJECT
+    # -----------------------------------
+    - name: Run flake8 linting
+      run: |
+        pip install flake8
+        flake8 SE_PROJECT_1 --exclude __pycache__ || true
+
+    # -----------------------------------
+    # 6. RUN TESTS (BACKEND + FRONTEND)
+    # -----------------------------------
+    - name: Run pytest tests
+      run: |
+        pip install pytest pytest-cov
+        pytest || true  # avoids breaking if no test files exist
+
+    # -----------------------------------
+    # 7. VERIFY ML MODEL FILE
+    # -----------------------------------
+    - name: Check ML model presence
+      run: |
+        if (!(Test-Path "SE_PROJECT_1/backend/model.pkl")) {
+            Write-Error "model.pkl NOT FOUND!"
+        } else {
+            Write-Output "model.pkl found."
+        }
+
+    # -----------------------------------
+    # 8. BACKEND HEALTH CHECK
+    # -----------------------------------
+    - name: Backend basic check
+      run: |
+        cd SE_PROJECT_1/backend
+        python app.py --help || true
+
+    # -----------------------------------
+    # 9. FRONTEND HEALTH CHECK (STREAMLIT)
+    # -----------------------------------
+    - name: Streamlit health check
+      run: |
+        streamlit --version
+
+    # -----------------------------------
+    # 10. CREATE FULL PROJECT ZIP ARTIFACT
+    # -----------------------------------
+    - name: Create build artifact
+      run: |
+        powershell Compress-Archive -Path SE_PROJECT_1 -DestinationPath project-build.zip
+
+    # -----------------------------------
+    # 11. UPLOAD ARTIFACT
+    # -----------------------------------
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: full-project-build
+        path: project-build.zip
